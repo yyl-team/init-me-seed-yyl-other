@@ -1,5 +1,7 @@
+const VERSION = '__data("yylVersion")'
 const config = {
   workflow: 'other',
+  version: VERSION,
   localserver: {
     root: './',
     port: 5000

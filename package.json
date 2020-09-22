@@ -1,12 +1,34 @@
 {
   "name": "init-me-seed-yyl-other",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "init-me seed init-me-yyl-other",
   "main": "index.js",
   "types": "index.d.ts",
+  "eslintConfig": {
+    "env": {
+      "jest": true
+    },
+    "extends": [
+      "yyl-node"
+    ]
+  },
+  "eslintIgnore": [
+    "node_modules",
+    "seeds"
+  ],
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "jsxSingleQuote": true,
+    "endOfLine": "lf",
+    "quoteProps": "consistent",
+    "trailingComma": "none"
+  },
   "scripts": {
     "eslint": "eslint ./index.js",
-    "test": "jest ./test"
+    "test": "jest ./test",
+    "prettier": "prettier --write ./**/*.js",
+    "prepublishOnly": "npm run prettier & npm test"
   },
   "engines": {
     "node": ">= 8.0.0"
@@ -19,15 +41,17 @@
   "license": "ISC",
   "dependencies": {
     "inquirer": "7.0.0",
-    "yyl-print": "0.7.3",
     "yyl-os": "0.10.0",
+    "yyl-print": "0.7.3",
+    "yyl-util": "2.3.5",
     "yyl-replacer": "0.2.1"
   },
   "devDependencies": {
     "eslint": "^6.6.0",
+    "eslint-config-yyl-node": "^0.1.2",
     "eslint-plugin-node": "^10.0.0",
     "jest": "^24.9.0",
-    "yyl-fs": "0.3.2",
-    "yyl-util": "2.3.5"
+    "prettier": "^2.1.2",
+    "yyl-fs": "0.3.2"
   }
 }

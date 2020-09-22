@@ -1,9 +1,9 @@
 const inquirer = require('inquirer')
-const extOs = require('yyl-os')
 const fs = require('fs')
 const path = require('path')
 const rp = require('yyl-replacer')
 const print = require('yyl-print')
+const util = require('yyl-util')
 
 const SEED_PATH = path.join(__dirname, './seeds')
 
@@ -17,12 +17,14 @@ const lang = {
   FORMAT_FILE_FINISHED: '格式化文件 完成',
 
   NPM_INSTALL_START: '正在安装依赖',
-  NPM_INSTALL_FINISHED: '安装依赖 完成'
+  NPM_INSTALL_FINISHED: '安装依赖 完成',
+  PARSE_PKG_ERROR: '解析 package.json 出错'
 }
 
 let initData = {
   name: '',
-  type: ''
+  type: '',
+  yylVersion: '3.10.2'
 }
 
 const config = {
@@ -54,7 +56,7 @@ const config = {
 
       // + type
       const types = fs.readdirSync(SEED_PATH).filter((iPath) => {
-        return !(/^\./.test(iPath))
+        return !/^\./.test(iPath)
       })
       if (types.length === 1) {
         initData.type = types[0]
@@ -77,6 +79,16 @@ const config = {
       }
       // - type
 
+      // + yylVersion
+      if (
+        env &&
+        env.yylVersion &&
+        util.compareVersion(initData.yylVersion, env.yylVersion) < 0
+      ) {
+        initData.yylVersion = env.yylVersion
+      }
+      // - yylVersion
+
       if (questions.length) {
         const r = await inquirer.prompt(questions)
         if (r.name) {
@@ -95,7 +107,7 @@ const config = {
      * @return Promise<fileMap>
      * beforeCopy({fileMap, targetPath})
      */
-    beforeCopy({fileMap, targetPath}) {
+    beforeCopy({ fileMap, targetPath }) {
       fileMap[path.join(config.path, 'gitignore')] = [
         path.join(targetPath, '.gitignore')
       ]
@@ -115,21 +127,46 @@ const config = {
      * @return Promise<any>
      * afterCopy({fileMap, targetPath, env })
      */
-    afterCopy({ env}) {
+    afterCopy({ env, targetPath }) {
       if (env.silent) {
         print.log.setLogLevel(0)
       }
 
       // + format
       print.log.info(lang.FORMAT_FILE_START)
-      const rPaths = []
+      const rPaths = [path.join(targetPath, 'yyl.config.js')]
       rPaths.forEach((iPath) => {
         let cnt = fs.readFileSync(iPath).toString()
         fs.writeFileSync(iPath, rp.dataRender(cnt, initData))
         print.log.update(iPath)
       })
-      print.log.success(lang.FORMAT_FILE_FINISHED)
       // - format
+
+      // + init npm script
+      const pkgPath = path.join(targetPath, 'package.json')
+
+      const scripts = {
+        'yyl:d': `echo 'hello yyl-seed other d'`,
+        'yyl:0': `echo 'hello yyl-seed other o'`
+      }
+
+      if (fs.existsSync(pkgPath)) {
+        try {
+          const pkg = require(pkgPath)
+          if (!pkg.scripts) {
+            pkg.scripts = {}
+          }
+          pkg.scripts = Object.assign(scripts, pkg.scripts)
+          fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2))
+        } catch (er) {
+          print.log.error([lang.PARSE_PKG_ERROR, er])
+        }
+      } else {
+        fs.writeFileSync(pkgPath, JSON.stringify(scripts, null, 2))
+      }
+      // - init npm script
+
+      print.log.success(lang.FORMAT_FILE_FINISHED)
       return Promise.resolve()
     }
   }
