@@ -147,7 +147,7 @@ const config = {
 
       const scripts = {
         'yyl:d': `echo 'hello yyl-seed other d'`,
-        'yyl:0': `echo 'hello yyl-seed other o'`
+        'yyl:o': `echo 'hello yyl-seed other o'`
       }
 
       if (fs.existsSync(pkgPath)) {
@@ -162,7 +162,7 @@ const config = {
           print.log.error([lang.PARSE_PKG_ERROR, er])
         }
       } else {
-        fs.writeFileSync(pkgPath, JSON.stringify(scripts, null, 2))
+        fs.writeFileSync(pkgPath, JSON.stringify({ scripts }, null, 2))
       }
       // - init npm script
 
