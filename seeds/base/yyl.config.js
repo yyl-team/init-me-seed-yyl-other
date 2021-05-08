@@ -9,9 +9,9 @@ const config = {
   proxy: {
     port: 8887,
     localRemote: {
-      'http://fet.yy.com/': 'http://127.0.0.1:5000/'
+      'http://www.testhost.com/': 'http://127.0.0.1:5000/'
     },
-    homePage: 'http://fet.yy.com/'
+    homePage: 'http://www.testhost.com/'
   }
 }
 
